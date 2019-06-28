@@ -40,6 +40,16 @@ function brightness:change_with_xbacklight(args)
 	awful.spawn.easy_async(command, self.info_with_xbacklight)
 end
 
+--Change with brightnessctl
+function brightness:chande_with_brightnessctl(args)
+
+	if args.down then
+		awful.spawn.easy_async("brightnessctl set " .. args.step .. "-", self.info_with_brightnessctl)
+	else
+		awful.spawn.easy_async("brightnessctl set +" .. args.step, self.info_with_brightnessctl)
+	end
+end
+
 -- Update brightness level info
 -----------------------------------------------------------------------------------------------------------------------
 
@@ -56,6 +66,19 @@ function brightness.info_with_xbacklight()
 			))
 		end
 	)
+end
+
+-- Update from brightnessctl
+------------------------------------------------------------
+function brightness.info_with_brightnessctl()
+	if not brightness.style then brightness.style = default_style() end
+	local max_brightness_level = redutil.read.output("brightnessctl max")
+	local brightness_level = (redutil.read.output("brightnessctl get") / max_brightness_level) * 100
+
+	rednotify:show(redutil.table.merge(
+			{ value = brightness_level / 100, text = string.format('%.0f', brightness_level) .. "%" },
+			brightness.style.notify
+	))
 end
 
 -----------------------------------------------------------------------------------------------------------------------

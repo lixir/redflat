@@ -356,7 +356,15 @@ function player:action(args)
 	if not awful.util.table.hasitem(self._actions, args) then return end
 	if not self.wibox then self:init() end
 
-	awful.spawn.with_shell(self.command.action .. args)
+	f = io.popen("dbus-send  --session  --dest=org.freedesktop.DBus  --print-reply  /org/freedesktop/DBus " ..
+			"org.freedesktop.DBus.ListNames |  fgrep org.mpris.MediaPlayer2. | head -1 |  awk '{print $2}' |  sed -e" ..
+			" 's:\"::g'")
+	temp = f:read("*a")
+	f:close()
+	temp=temp:gsub("%s+", "")
+	awful.spawn.with_shell("dbus-send --print-reply=literal --session --dest=" .. temp .. " /org/mpris/MediaPlayer2" ..
+			" org.mpris.MediaPlayer2.Player." .. args)
+
 	self:update()
 end
 
