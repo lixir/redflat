@@ -259,14 +259,37 @@ end
 --	for _, c in pairs(cl) do titlebar.switch(c, position) end
 --end
 
-function titlebar.show_all(cl, position)
-	cl = cl or titlebar.get_clients()
-	for _, c in pairs(cl) do titlebar.show(c, position) end
+function titlebar.show_all()
+	for _, client in pairs(titlebar.get_clients()) do
+		for _, position in ipairs(positions) do
+			titlebar.show(client, position)
+		end
+	end
 end
 
-function titlebar.hide_all(cl, position)
-	cl = cl or titlebar.get_clients()
-	for _, c in pairs(cl) do titlebar.hide(c, position) end
+function titlebar.hide_all()
+	for _, client in pairs(titlebar.get_clients()) do
+		for _, position in ipairs(positions) do
+			titlebar.hide(client, position)
+		end
+	end
+end
+
+function titlebar.global_toggle(c)
+	local is_hidden
+	local model
+	for _, position in ipairs(positions) do
+		model = titlebar.get_model(c, position)
+		if model then
+			is_hidden  = model.hidden
+			break
+		end
+	end
+	if is_hidden then
+		titlebar.show_all()
+	else
+		titlebar.hide_all()
+	end
 end
 
 -- Global layout switch
@@ -410,6 +433,7 @@ function titlebar.label(c, style, is_highlighted)
 	local w = wibox.widget.textbox()
 	w:set_font(style.font)
 	w:set_align("center")
+	--w:set_forced_height(style.size)
 	w._current_color = style.color.text
 
 	local function update()

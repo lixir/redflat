@@ -23,15 +23,17 @@ local keybd = { mt = {} }
 
 -- Generate default theme vars
 -----------------------------------------------------------------------------------------------------------------------
-local function default_style()
+local function default_style(layout)
+	layout = layout or 1
 	local style = {
-		icon         = redutil.base.placeholder(),
-		micon        = { blank = redutil.base.placeholder({ txt = " " }),
-		                 check = redutil.base.placeholder({ txt = "+" }) },
-		menu         = { color = { right_icon = "#a0a0a0" } },
-		layout_color = { "#a0a0a0", "#b1222b" }
+		icon        	= redutil.base.placeholder(),
+		micon        	= { blank = redutil.base.placeholder({ txt = " " }),
+		                  check = redutil.base.placeholder({ txt = "+" }) },
+		menu        	= { color = { right_icon = "#a0a0a0" } },
+		layout_color    = { "#a0a0a0", "#b1222b" },
+		widget_language = {"widget.keyboard.first_language", "widget.keyboard.second_language"}
 	}
-	return redutil.table.merge(style, redutil.table.check(beautiful, "widget.keyboard") or {})
+	return redutil.table.merge(style, redutil.table.check(beautiful, style.widget_language[layout]) or {})
 end
 
 -- Initialize layout menu
@@ -63,7 +65,9 @@ function keybd:init(layouts, style)
 	-- update layout data
 	self.update = function()
 		local layout = awesome.xkb_get_layout_group() + 1
-		for _, w in ipairs(self.objects) do w:set_color(style.layout_color[layout] or "#000000") end
+		image = (redutil.table.check(beautiful, style.widget_language[layout] .. ".icon"))
+		for _, w in ipairs(self.objects) do w:set_image(image) end
+
 
 		-- update tooltip
 		keybd.tp:set_text(self.layouts[layout])
@@ -115,7 +119,7 @@ function keybd.new(style)
 	if not keybd.menu then keybd:init({}) end
 
 	local widg = svgbox(style.icon or keybd.style.icon)
-	widg:set_color(keybd.style.layout_color[1])
+	--widg:set_color(keybd.style.layout_color[1])
 	table.insert(keybd.objects, widg)
 	keybd.tp:add_to_object(widg)
 
