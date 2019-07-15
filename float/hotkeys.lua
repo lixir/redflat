@@ -42,8 +42,8 @@ local function default_style()
 		is_align      = false,
 		separator     = {},
 		heights       = { key = 20, title = 24 },
-		color         = { border = "#575757", text = "#aaaaaa", main = "#b1222b", wibox = "#202020",
-		                  gray = "#575757" },
+		color         = { border = "#404040", text = "#dddddd", main = "#0000ff", wibox = "#202020",
+		                  blue = "#0000ff", light_blue = "#00ffff" },
 		shape         = nil
 	}
 
@@ -135,6 +135,16 @@ local function build_tip(pack, style, keypressed)
 	for i, column in ipairs(pack) do
 		local coltxt = {}
 		local height = 0
+		local max_length = 0
+		for _, name in pairs(column.names) do
+			local group = column.groups[name]
+			for _, key in ipairs(group) do
+				local temp_length = #key.key + #key.mod + #key.keyset
+				if temp_length > max_length then
+					max_length = temp_length
+				end
+			end
+		end
 
 		for _, name in pairs(column.names) do
 			local group = column.groups[name]
@@ -142,7 +152,7 @@ local function build_tip(pack, style, keypressed)
 			-- set group title
 			coltxt[#coltxt + 1] = string.format(
 				'<span font="%s" color="%s">%s</span>',
-				style.titlefont, style.color.gray, name
+				style.titlefont, style.color.blue, name
 			)
 			height = height + style.heights.title
 
@@ -161,14 +171,15 @@ local function build_tip(pack, style, keypressed)
 					local fm = {}
 					for ki, v in ipairs(key.mod) do fm[ki] = string.format('<b>%s</b>', v) end
 					table.insert(fm, line)
-					line = table.concat(fm, string.format('<span color="%s">+</span>', style.color.gray))
+					line = table.concat(fm, string.format('<span color="%s">+</span>', style.color.light_blue))
 				end
 
 				-- key with description
 				local clr = keypressed and hasitem(key.keyset, keypressed) and style.color.main or style.color.text
+				local temp_delim = string.rep(" ", max_length - #key.mod - #key.key - #key.keyset - 1)
 				line = string.format(
-					'<span color="%s"><span font="%s">%s</span>%s%s</span>',
-					clr, style.keyfont, line, style.delim, key.description
+					'<span color="%s"><span font="%s">%s</span> %s</span>',
+					clr, style.keyfont, line, key.description
 				)
 				coltxt[#coltxt + 1] = line
 				height = height + style.heights.key

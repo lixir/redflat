@@ -65,7 +65,9 @@ function battery.new(args, style)
 
 		widg:set_value(state.value)
 		widg:set_alert(state.alert)
+		--widg:set_text(state.battery_state)
 		widg._tp:set_text(state.text)
+		--error(state.battery_state)
 
 		if state.value <= widg._last.value then
 			local level = get_level(state.value, style.levels)

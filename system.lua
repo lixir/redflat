@@ -743,7 +743,8 @@ function system.pformatted.bat(crit)
 		return {
 			value = state[2] / 100,
 			text  = state[1] .. "  " .. state[2] .. "%  " .. state[3],
-			alert = state[2] < crit
+			alert = state[2] < crit,
+			battery_state = state[1]
 		}
 	end
 end

@@ -80,7 +80,7 @@ local function default_style()
 			prev_tr = redutil.base.placeholder({ txt = "←" }),
 		},
 		color          = { border = "#575757", main = "#b1222b",
-		                   wibox = "#202020", gray = "#575757", icon = "#a0a0a0" },
+						   wibox = "#202020", gray = "#575757", icon = "#a0a0a0" },
 		shape          = nil
 	}
 	return redutil.table.merge(style, redutil.table.check(beautiful, "float.player") or {})
@@ -193,20 +193,22 @@ function player:init(args)
 	))
 
 	-- position
-	self.bar:buttons(awful.util.table.join(
-		awful.button(
-			{}, 1, function()
-				local coords = {
-					bar   = mouse.current_widget_geometry,
-					wibox = mouse.current_wibox:geometry(),
-					mouse = mouse.coords(),
-				}
+	self.bar:buttons(
+		awful.util.table.join(
+			awful.button(
+				{}, 1, function()
+					local coords = {
+						bar   = mouse.current_widget_geometry,
+						wibox = mouse.current_wibox:geometry(),
+						mouse = mouse.coords(),
+					}
 
-				local position = (coords.mouse.x - coords.wibox.x - coords.bar.x) / coords.bar.width
-				awful.spawn.with_shell(self.command.set_position .. math.floor(self.last.length * position))
-			end
+					local position = (coords.mouse.x - coords.wibox.x - coords.bar.x) / coords.bar.width
+					awful.spawn.with_shell(self.command.set_position .. math.floor(self.last.length * position))
+				end
+			)
 		)
-	))
+	)
 
 	-- switch between artist and album info on mouse click
 	self.box.artist:buttons(awful.util.table.join(
@@ -361,11 +363,40 @@ function player:action(args)
 			" 's:\"::g'")
 	temp = f:read("*a")
 	f:close()
-	temp=temp:gsub("%s+", "")
+	temp = temp:gsub("%s+", "")
 	awful.spawn.with_shell("dbus-send --print-reply=literal --session --dest=" .. temp .. " /org/mpris/MediaPlayer2" ..
 			" org.mpris.MediaPlayer2.Player." .. args)
 
 	self:update()
+	local naughty = require("naughty")
+	local fields  = player:get_players()
+	for i = 1, #fields  do
+		naughty.notify({
+			preset = naughty.config.presets.critical,
+			title  = "Oops!",
+			text   = fields[i]
+		})
+	end
+end
+
+
+-- Get media players list
+-----------------------------------------------------------------------------------------------------------------------
+
+function string:split(sep)
+	local sep, fields = sep or ":", {}
+	local pattern = string.format("([^%s]+)", sep)
+	self:gsub(pattern, function(c) fields[#fields+1] = c end)
+	return fields
+end
+
+function player:get_players()
+	local f = io.popen("dbus-send --session --dest=org.freedesktop.DBus --print-reply /org/freedesktop/DBus " ..
+	"org.freedesktop.DBus.ListNames |  fgrep org.mpris.MediaPlayer2. | awk '{print $2}' | sed -e 's:\"::g'")
+	local temp = f:read("*a")
+	f:close()
+	local list = temp:split("\n")
+	return list
 end
 
 -- Player volume control

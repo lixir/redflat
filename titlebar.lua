@@ -36,14 +36,15 @@ local default_style = {
 	position      = "top",
 	font          = "Sans 12 bold",
 	border_margin = { 0, 0, 0, 4 },
-	color         = { main = "#b1222b", wibox = "#202020", gray = "#575757",
+	color         = { main = "#0000ff", wibox = "#202020", gray = "#575757",
 	                  text = "#aaaaaa", icon = "#a0a0a0", urgent = "#32882d" }
 }
 
 local default_mark_style = {
 	size  = 20,
 	angle = 0,
-	color = default_style.color
+	color = { main = "#0000ff", wibox = "#202020", gray = "#575757",
+			  text = "#aaaaaa", icon = "#a0a0a0", urgent = "#32882d" }
 }
 
 local default_button_style = {
