@@ -15,6 +15,7 @@ local awful = require("awful")
 local beautiful = require("beautiful")
 local wibox = require("wibox")
 local timer = require("gears.timer")
+local redflat = require("redflat")
 
 local redutil = require("redflat.util")
 local progressbar = require("redflat.gauge.graph.bar")
@@ -75,7 +76,7 @@ local function default_style()
 		icon            = {
 			cover   = redutil.base.placeholder(),
 			play    = redutil.base.placeholder({ txt = "►" }),
-			pause   = redutil.base.placeholder({ txt = "[]" }),
+			pause   = redutil.base.placeholder({ txt = "||" }),
 			next_tr = redutil.base.placeholder({ txt = "→" }),
 			prev_tr = redutil.base.placeholder({ txt = "←" }),
 		},
@@ -94,7 +95,8 @@ function player:init(args)
 	-- Initialize vars
 	--------------------------------------------------------------------------------
 	args = args or {}
-	local _player = args.name or "vlc"
+	local _player = args.name or "spotify"
+	--local _player = "exaile"
 	local style = default_style()
 	local show_album = false
 
@@ -120,7 +122,7 @@ function player:init(args)
 	-- progressbar and icon
 	self.bar = progressbar(style.progressbar)
 	self.box.image = svgbox(style.icon.cover)
-	self.box.image:set_color(style.color.gray)
+	--self.box.image:set_color(style.color.gray)
 
 	-- Text lines
 	------------------------------------------------------------
@@ -188,8 +190,8 @@ function player:init(args)
 
 	-- volume
 	self.volume:buttons(awful.util.table.join(
-		awful.button({}, 4, function() self:change_volume( 0.05) end),
-		awful.button({}, 5, function() self:change_volume(-0.05) end)
+		awful.button({}, 4, function() self:change_volume(-655) end),
+		awful.button({}, 5, function() self:change_volume( 655) end)
 	))
 
 	-- position
@@ -256,7 +258,7 @@ function player:init(args)
 	------------------------------------------------------------
 	self.clear_info = function(is_att)
 		self.box.image:set_image(style.icon.cover)
-		self.box.image:set_color(is_att and style.color.main or style.color.gray)
+		--self.box.image:set_color(is_att and style.color.main or style.color.gray)
 
 		self.box.time:set_text("0:00")
 		self.bar:set_value(0)
@@ -402,8 +404,9 @@ end
 -- Player volume control
 -----------------------------------------------------------------------------------------------------------------------
 function player:change_volume(step)
+	redflat.widget.pulse:change_volume({ show_notify = false, down = (step < 0), step or {}})
 	local v = (self.last.volume or 0) + step
-	if     v > 1 then v = 1
+	if     v > 65536 then v = 65536
 	elseif v < 0 then v = 0 end
 
 	self.last.volume = v
@@ -454,14 +457,26 @@ function player:update_from_metadata(data)
 
 		-- set album or artist info
 
-		self.info.artist = data.Metadata["xesam:artist"] and data.Metadata["xesam:artist"][1] or "Unknown"
-		self.info.album  = data.Metadata["xesam:album"] or "Unknown"
-		self.update_artist()
+		--self.info.artist = data.Metadata["xesam:artist"] and data.Metadata["xesam:artist"][1] or "Unknown"
+		--self.info.album  = data.Metadata["xesam:album"] or "Unknown"
+		--self.update_artist()
+		--
+		--local http = require("socket.http")
+		--local body, code = http.request( data.Metadata["mpris:artUrl"] )
+		--if not body then error(code) end
+		---- save the content to a file
+		--local f = assert(io.open('test.jpg', 'wb')) -- open in "binary" mode
+		--f:write(body)
+		--f:close()
 
 		-- set cover art
 		local has_cover = false
 		if data.Metadata["mpris:artUrl"] then
-			local image = string.match(data.Metadata["mpris:artUrl"], "file://(.+)")
+			--local image = string.match(data.Metadata["mpris:artUrl"], "https://(.+)")
+			--local image = string.match(data.Metadata["mpris:artUrl"], "file://(.+)")
+			local image = data.Metadata["mpris:artUrl"]
+			--local image = 'test.jpg'
+			--error(image)
 			if image then
 				self.box.image:set_color(nil)
 				has_cover = self.box.image:set_image(decodeURI(image))

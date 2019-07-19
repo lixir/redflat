@@ -171,7 +171,7 @@ function QuakeConsole:init()
         function(s)
             quakeconsole[s] = QuakeConsole:new(
                 {
-                    terminal = "urxvt",
+                     terminal = "urxvt",
                     height = 0.7,
                     screen = s
                 }

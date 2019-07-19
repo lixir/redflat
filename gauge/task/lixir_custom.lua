@@ -17,7 +17,7 @@ local svgbox = require("redflat.gauge.svgbox")
 
 -- Initialize tables for module
 -----------------------------------------------------------------------------------------------------------------------
-local greentask = { mt = {} }
+local lixir_task = { mt = {} }
 
 
 -- Generate default theme vars
@@ -37,7 +37,7 @@ end
 -- Create a new greentask widget
 -- @param style Table containing colors and geometry parameters for all elemets
 -----------------------------------------------------------------------------------------------------------------------
-function greentask.new(style)
+function lixir_task.new(style)
 
 	-- Initialize vars
 	--------------------------------------------------------------------------------
@@ -82,14 +82,12 @@ function greentask.new(style)
 		data.state = redutil.table.merge(data.state, state)
 
 		-- icon
-		local icon = state.custom_icon or style.df_icon
+		local icon = state.icon or style.df_icon
 		self._svgbox:set_image(icon)
-		self._svgbox:set_color(
-			data.state.focus and style.color.main
-			or data.state.urgent and style.color.urgent
-			or data.state.minimized and style.color.gray
-			or style.color.icon
-		)
+		widg.opacity = data.state.focus and 1
+			or data.state.urgent and 0.6
+			or data.state.minimized and 0.25
+			or 0.6
 
 		-- counter
 		self._text_layout:set_visible(state.num > 1)
@@ -109,8 +107,8 @@ end
 
 -- Config metatable to call greentask module as function
 -----------------------------------------------------------------------------------------------------------------------
-function greentask.mt:__call(...)
-	return greentask.new(...)
+function lixir_task.mt:__call(...)
+	return lixir_task.new(...)
 end
 
-return setmetatable(greentask, greentask.mt)
+return setmetatable(lixir_task, lixir_task.mt)

@@ -119,10 +119,12 @@ local function get_state(c_group, style)
 
 	local state = { focus = false, urgent = false, minimized = true, list = {} }
 
+	awesome.set_preferred_icon_size(40)
 	for _, c in pairs(c_group) do
 		state.focus     = state.focus or client.focus == c
 		state.urgent    = state.urgent or c.urgent
 		state.minimized = state.minimized and c.minimized
+		state.icon      = c.icon
 
 		table.insert(state.list, { focus = client.focus == c, urgent = c.urgent, minimized = c.minimized })
 	end
@@ -130,7 +132,7 @@ local function get_state(c_group, style)
 	local class = c_group[1].class or "Undefined"
 	state.text = names[class] or string.upper(string.sub(class, 1, chars))
 	state.num = #c_group
-	state.icon = style.custom_icon and style.icons[style.iconnames[class] or string.lower(class)]
+	state.custom_icon = style.custom_icon and style.icons[style.iconnames[class] or string.lower(class)]
 
 	return state
 end
